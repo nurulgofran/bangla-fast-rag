@@ -15,7 +15,7 @@ from core.pipeline import RAGPipeline
 def run_benchmark(iterations: int = 100) -> None:
     """Run the Q1→Q2 scenario and measure Q2 latency."""
     print("=" * 60)
-    print("🧪 Speaklar Bangla RAG — Performance Benchmark")
+    print("Speaklar Bangla RAG - Performance Benchmark")
     print("=" * 60)
 
     # Initialize pipeline
@@ -23,7 +23,7 @@ def run_benchmark(iterations: int = 100) -> None:
     pipeline.initialize()
 
     # Warm-up (first run is always slower due to caching)
-    print("\n🔄 Warming up...")
+    print("\nWarming up...")
     pipeline.reset()
     pipeline.process_query("আপনাদের কোম্পানি কি নুডুলস বিক্রি করে?", use_llm=False)
     pipeline.process_query("দাম কত টাকা?", use_llm=False)
@@ -37,7 +37,7 @@ def run_benchmark(iterations: int = 100) -> None:
     q2_responses = []
     correct_count = 0
 
-    print(f"\n▶️ Running {iterations} iterations...\n")
+    print(f"\nRunning {iterations} iterations...\n")
 
     for i in range(iterations):
         pipeline.reset()
@@ -103,18 +103,18 @@ def run_benchmark(iterations: int = 100) -> None:
             f"{s['p95']:>8.2f} {s['p99']:>8.2f} {s['min']:>8.2f} {s['max']:>8.2f}"
         )
 
-    print(f"\n🎯 Correctness: {correct_count}/{iterations} ({correct_count/iterations*100:.1f}%)")
-    print(f"⏱️ Median Q2 latency: {total['median']:.2f}ms")
+    print(f"\nCorrectness: {correct_count}/{iterations} ({correct_count/iterations*100:.1f}%)")
+    print(f"Median Q2 latency: {total['median']:.2f}ms")
 
     if total['median'] < 100:
-        print(f"✅ PASS — Median under 100ms (target)")
+        print(f"PASS - Median under 100ms (target)")
     else:
-        print(f"❌ FAIL — Median exceeds 100ms")
+        print(f"FAIL - Median exceeds 100ms")
 
     if total['p99'] < 100:
-        print(f"✅ PASS — P99 under 100ms (even the worst case!)")
+        print(f"PASS - P99 under 100ms")
     else:
-        print(f"⚠️ NOTE — P99 exceeds 100ms ({total['p99']:.2f}ms)")
+        print(f"NOTE - P99 exceeds 100ms ({total['p99']:.2f}ms)")
 
     print()
 

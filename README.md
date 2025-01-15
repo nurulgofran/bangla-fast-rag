@@ -1,14 +1,14 @@
-# 🚀 Bangla Fast RAG (<100ms) with Coreference Resolution
+# Bangla Fast RAG System
 
 A highly optimized context-aware Retrieval-Augmented Generation (RAG) system built for the Bengali language. This project was developed as a solution to the Speaklar NLP Engineer assessment, demonstrating the ability to retrieve from a 5MB+ dataset and generate context-aware responses in under 100 milliseconds.
 
-## ✨ Key Features & Achievements
+## Key Features
 
-- **⚡ Blazing Fast Retrieval (<20ms):** Achieves median processing times of **~12-16ms** for follow-up queries, crushing the <100ms assessment requirement.
-- **🧠 Context-Aware Coreference Resolution:** Automatically understands conversational context. (e.g., Q1: "Do you sell noodles?", Q2: "What is the price?" -> System understands Q2 refers to noodles).
-- **📦 5MB+ Synthetic Bangla Dataset:** Includes a custom script that generates 5,000 unique Bangla products (~5.4MB text data) across 15 categories.
-- **⚙️ Zero-LLM Hot Path Architecture:** Solved the "Time-To-First-Token" bottleneck of cloud LLMs (~300ms) by utilizing a pre-warmed ONNX embedding model (ARM64 INT8 quantized) and template-based deterministic responses for time-critical queries.
-- **📊 Gradio Chat & Benchmark UI:** Includes a full chat interface with real-time latency metrics and a built-in automated 20-product benchmark suite.
+- **Fast Retrieval (<20ms):** Achieves median processing times of ~12-16ms for follow-up queries, meeting the <100ms assessment requirement.
+- **Context-Aware Coreference Resolution:** Automatically understands conversational context. (e.g., Q1: "Do you sell noodles?", Q2: "What is the price?" -> System understands Q2 refers to noodles).
+- **5MB+ Synthetic Bangla Dataset:** Includes a custom script that generates 5,000 unique Bangla products (~5.4MB text data) across 15 categories.
+- **Zero-LLM Hot Path Architecture:** Solved the "Time-To-First-Token" bottleneck of cloud LLMs (~300ms) by utilizing a pre-warmed ONNX embedding model (ARM64 INT8 quantized) and template-based deterministic responses for time-critical queries.
+- **Gradio Chat & Benchmark UI:** Includes a full chat interface with real-time latency metrics and a built-in automated 20-product benchmark suite.
 
 ## The Challenge
 
@@ -20,7 +20,7 @@ A highly optimized context-aware Retrieval-Augmented Generation (RAG) system bui
 1. **Conversational queries** are routed to an LLM asynchronously.
 2. **Follow-up / Data-retrieval queries** (e.g., "What is the price?") are routed to an ultra-fast "Hot Path" that leverages proactive entity tracking, quantized purely-CPU ONNX embeddings (~5ms), and FAISS Hybrid Search (~8ms).
 
-## 📊 Benchmark Results
+## Benchmark Results
 
 Running the automated benchmark (`test_20_products.py`) across 20 completely random products from the 5,000 dataset:
 
@@ -31,14 +31,14 @@ Running the automated benchmark (`test_20_products.py`) across 20 completely ran
 | **Max Q2 Latency** | **16.63ms** | < 100ms |
 | **Dataset Size (Raw Text)** | **5.42 MB** | 5.0 MB |
 
-## 🛠️ Tech Stack
+## Tech Stack
 - **Language:** Python 3.10+
 - **Embeddings:** `paraphrase-multilingual-MiniLM-L12-v2` (Running natively via **ONNX Runtime** `qint8_arm64` for maximum CPU thread efficiency)
 - **Vector Search:** `FAISS` (IndexFlatIP)
 - **LLM:** `Groq API` (llama-3.1-8b-instant)
 - **UI:** `Gradio`
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Python 3.10+
@@ -77,7 +77,7 @@ python app.py
 ```
 *The Gradio app will open at `http://127.0.0.1:7860`.*
 
-## 📂 Project Structure
+## Project Structure
 
 ```text
 ├── app.py                   # Main Gradio application
@@ -95,5 +95,5 @@ python app.py
     └── llm.py               # Groq API wrapper
 ```
 
-## 🤝 Acknowledgments
+## Acknowledgments
 Developed as a technical assessment for Speaklar NLP Engineer role.
