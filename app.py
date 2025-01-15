@@ -45,7 +45,7 @@ def chat(message: str, history: list[dict]) -> str:
     )
 
     if metrics.total_ms < 100:
-        latency_info += " (<100ms)"
+        latency_info += "✅ (<100ms)"
     else:
         latency_info += " (>100ms)"
 
