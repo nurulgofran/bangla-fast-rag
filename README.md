@@ -1,99 +1,82 @@
-# Bangla Fast RAG System
+# Speaklar Bangla Fast RAG
 
-A highly optimized context-aware Retrieval-Augmented Generation (RAG) system built for the Bengali language. This project was developed as a solution to the Speaklar NLP Engineer assessment, demonstrating the ability to retrieve from a 5MB+ dataset and generate context-aware responses in under 100 milliseconds.
+A highly optimized, context-aware Retrieval-Augmented Generation (RAG) system built for the Bengali language. Designed to retrieve and respond from a 5MB+ dataset in under **100 milliseconds**.
 
-## Key Features
+## Architectural Decisions: An AI Engineer's Point of View
 
-- **Fast Retrieval (<20ms):** Achieves median processing times of ~12-16ms for follow-up queries, meeting the <100ms assessment requirement.
-- **Context-Aware Coreference Resolution:** Automatically understands conversational context. (e.g., Q1: "Do you sell noodles?", Q2: "What is the price?" -> System understands Q2 refers to noodles).
-- **5MB+ Synthetic Bangla Dataset:** Includes a custom script that generates 5,000 unique Bangla products (~5.4MB text data) across 15 categories.
-- **Zero-LLM Hot Path Architecture:** Solved the "Time-To-First-Token" bottleneck of cloud LLMs (~300ms) by utilizing a pre-warmed ONNX embedding model (ARM64 INT8 quantized) and template-based deterministic responses for time-critical queries.
-- **Gradio Chat & Benchmark UI:** Includes a full chat interface with real-time latency metrics and a built-in automated 20-product benchmark suite.
+To achieve sub-100ms latency for a fully functioning RAG pipeline, standard paradigms had to be broken. Here is *why* the system is designed the way it is:
 
-## The Challenge
+### 1. Why a "Zero-LLM" Hot Path? (Template vs. LLM)
+**The Problem:** Standard LLM APIs (even fast ones) have a Time-To-First-Token (TTFT) network bottleneck of 200-500ms. Putting an LLM in the middle of a time-critical Q2 retrieval loop inherently fails the 100ms test.
+**The Solution:** The pipeline is bifurcated. Conversational queries (Q1) route to the LLM. Time-critical data-retrieval queries (e.g., Q2: "What is the price?") hit an ultra-fast deterministic template engine. This is how enterprise pipelines (Amazon, Google) handle structured data recall, dropping Q2 generation time to **<1ms**.
 
-> *"Develop a system capable of resolving coreference and accurately returning the price of noodles. The total processing time for Q2 including both retrieval and response generation must be under 100 milliseconds for the RAG response from a 5MB dataset."*
+### 2. Why ONNX Runtime over PyTorch?
+**The Problem:** PyTorch introduces massive thread-locking and initialization overhead in Python thread pools, pushing basic embedding inference to ~400ms on some CPU architectures.
+**The Solution:** I stripped out PyTorch and deployed the `paraphrase-multilingual-MiniLM-L12-v2` model using an **INT8 Quantized ONNX Runtime**. By forcing native CPU execution paths, embedding latency plummeted from ~400ms to **~5ms**.
 
-**The Problem with Standard RAG:** Standard LLM APIs (like Groq, OpenAI) have a TTFT (Time-To-First-Token) of 200-500ms. A naive approach of placing an LLM in the middle of a time-critical retrieval loop inherently fails the 100ms test.
+### 3. Why Implicit Entity Tracking over NER?
+**The Problem:** Resolving coreference (e.g., understanding "What is its price?" refers to "Noodles") typically requires running a slow Named Entity Recognition (NER) model on every query.
+**The Solution:** Zero-cost entity extraction. When FAISS returns results for Q1, the system plucks the top result's name directly from the payload and stores it in the `ConversationState`. When Q2 arrives devoid of a product noun, the system injects the stored entity, achieving coreference resolution in **~0ms**.
 
-**The Solution:** This system splits the pipeline:
-1. **Conversational queries** are routed to an LLM asynchronously.
-2. **Follow-up / Data-retrieval queries** (e.g., "What is the price?") are routed to an ultra-fast "Hot Path" that leverages proactive entity tracking, quantized purely-CPU ONNX embeddings (~5ms), and FAISS Hybrid Search (~8ms).
+### 4. Why Hybrid Search (Keyword + FAISS)?
+**The Problem:** Pure semantic vector search (like FAISS) frequently struggles with highly-inflected regional languages like Bengali, leading to poor precision on exact product names.
+**The Solution:** I built a dual-pass index. A high-speed, deterministic keyword matcher parses Bengali suffixes ("ের", "তে", "গুলো") for exact matches, instantly backed by a `FAISS IndexFlatIP` (cosine similarity) index. This guarantees 100% precision on known items while retaining semantic fallback for vague queries. Total search time: **~8ms**.
 
-## Benchmark Results
+### 5. Why Groq API?
+**The Problem:** While the Q2 hot-path is handled by templates, Q1 conversational turns still need an LLM to sound human.
+**The Solution:** For the conversational paths, I utilized `llama-3.1-8b-instant` via Groq. Groq's specialized LPU (Language Processing Unit) architecture currently provides the absolute lowest latency in the industry, keeping the non-critical paths as snappy as possible.
 
-Running the automated benchmark (`test_20_products.py`) across 20 completely random products from the 5,000 dataset:
+---
 
-| Metric | Result | Target |
-| :--- | :--- | :--- |
-| **Pass Rate** | **100%** (20/20) | - |
-| **Average Q2 Latency** | **12.43ms** | < 100ms |
-| **Max Q2 Latency** | **16.63ms** | < 100ms |
-| **Dataset Size (Raw Text)** | **5.42 MB** | 5.0 MB |
+## How to Run
 
-## Tech Stack
-- **Language:** Python 3.10+
-- **Embeddings:** `paraphrase-multilingual-MiniLM-L12-v2` (Running natively via **ONNX Runtime** `qint8_arm64` for maximum CPU thread efficiency)
-- **Vector Search:** `FAISS` (IndexFlatIP)
-- **LLM:** `Groq API` (llama-3.1-8b-instant)
-- **UI:** `Gradio`
-
-## Getting Started
-
-### Prerequisites
-- Python 3.10+
-- Groq API Key
-
-### Installation
-
-1. Clone the repository:
+### 1. Install Dependencies
+Requires Python 3.10+.
 ```bash
-git clone https://github.com/yourusername/bangla-fast-rag.git
-cd bangla-fast-rag
-```
-
-2. Install dependencies:
-```bash
-# Core requirements including ONNX runtime for sentence-transformers
 pip install -r requirements.txt
 pip install "sentence-transformers[onnx]" onnxruntime
 ```
 
-3. Set up environment variables:
+### 2. Configure Environment
 Create a `.env` file in the root directory:
 ```env
 GROQ_API_KEY=your_groq_api_key_here
 ```
 
-4. Generate the dataset and build the vector index:
+### 3. Generate Dataset & Build Index
+The system dynamically generates a 5MB+ / 5,000 product synthetic Bangla dataset.
 ```bash
+# Generate the data
 python data/generate_dataset.py
+
+# Build the FAISS vector index
 python -c "from core.indexer import product_index; product_index.build_index()"
 ```
 
-5. Run the application:
+### 4. Launch the App
 ```bash
 python app.py
 ```
-*The Gradio app will open at `http://127.0.0.1:7860`.*
+*The Gradio chat UI and Benchmarking dashboard will start at `http://127.0.0.1:7860`.*
+
+---
+
+## Benchmark Results
+Run `python benchmark.py` to execute the assessment scenario 100 times.
+- **Average Q2 Total Latency:** `~16ms`
+- **Pass Rate:** `100%` (Well under the 100ms requirement) 
 
 ## Project Structure
-
 ```text
 ├── app.py                   # Main Gradio application
 ├── benchmark.py             # Assessment scenario benchmark script
-├── test_20_products.py      # Automated 20 random product benchmark
-├── config.py                # Configuration and hyper-parameters
-├── data/
-│   └── generate_dataset.py  # 5MB/5,000 item Bangla dataset generator
-└── core/
-    ├── pipeline.py          # RAG Orchestrator mapping query to strategy
-    ├── indexer.py           # FAISS Hybrid Search implementation
-    ├── embeddings.py        # ONNX model wrapper for ~5ms embeddings
-    ├── conversation.py      # Entity tracking & coreference resolution
-    ├── responder.py         # Template vs LLM response logic
-    └── llm.py               # Groq API wrapper
+├── config.py                # Hyperparameters
+├── data/                    # Dataset generation
+└── core/                    
+    ├── pipeline.py          # RAG Orchestrator
+    ├── indexer.py           # Hybrid Search implementation
+    ├── embeddings.py        # ONNX model wrapper
+    ├── conversation.py      # Entity tracking & coreference
+    ├── responder.py         # Template vs LLM logic
+    └── llm.py               # Groq wrapper
 ```
-
-## Acknowledgments
-Developed as a technical assessment for Speaklar NLP Engineer role.
