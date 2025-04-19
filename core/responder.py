@@ -74,7 +74,6 @@ def llm_response(query: str, results: list[dict], history: list[dict]) -> str:
     Generate an LLM-based conversational response.
     Used for Q1 and complex queries — NOT time-critical.
     """
-    # Format retrieved products as context
     context_lines = []
     for i, p in enumerate(results, 1):
         context_lines.append(

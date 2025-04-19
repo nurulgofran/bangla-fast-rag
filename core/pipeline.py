@@ -88,24 +88,20 @@ class RAGPipeline:
         metrics = QueryMetrics()
         total_start = time.perf_counter()
 
-        # Step 1: Query Enrichment (coreference resolution)
         t0 = time.perf_counter()
         enriched_query, was_enriched = enrich_query(query, self.state)
         metrics.enrichment_ms = (time.perf_counter() - t0) * 1000
         metrics.was_enriched = was_enriched
         metrics.enriched_query = enriched_query
 
-        # Step 2: Embed the query
         t0 = time.perf_counter()
         query_embedding = embedding_model.encode_query(enriched_query)
         metrics.embedding_ms = (time.perf_counter() - t0) * 1000
 
-        # Step 3: FAISS Search
         t0 = time.perf_counter()
         results = product_index.search(query_embedding, query_text=enriched_query)
         metrics.search_ms = (time.perf_counter() - t0) * 1000
 
-        # Step 4: Response Generation
         t0 = time.perf_counter()
         query_type = classify_query(enriched_query)
 
@@ -131,7 +127,6 @@ class RAGPipeline:
 
         metrics.response_ms = (time.perf_counter() - t0) * 1000
 
-        # Step 5: Update conversation state
         self.state.add_turn("user", query)
         self.state.add_turn("assistant", response)
         self.state.update_topic_from_results(results, user_query=query)
@@ -145,5 +140,4 @@ class RAGPipeline:
         self.state.reset()
 
 
-# Global instance
 rag_pipeline = RAGPipeline()

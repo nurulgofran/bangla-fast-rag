@@ -190,12 +190,10 @@ def generate_products(num_products: int = 5000) -> list[dict]:
         category = random.choice(categories)
         base_name, price_min, price_max, desc_template = random.choice(CATALOG[category])
 
-        # Create product variant
         brand = random.choice(BRANDS)
         quality = random.choice(QUALITY_TAGS)
         price = random.randint(price_min, price_max)
 
-        # Vary product names for diversity
         name_variant = random.choice([
             f"{brand} {base_name}",
             f"{base_name} ({quality})",
@@ -203,7 +201,6 @@ def generate_products(num_products: int = 5000) -> list[dict]:
             f"{base_name} {quality}",
         ])
 
-        # Skip duplicates
         if name_variant in used_names:
             continue
         used_names.add(name_variant)
@@ -254,7 +251,6 @@ def save_dataset(products: list[dict], output_path: Path) -> None:
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(products, f, ensure_ascii=False, indent=2)
 
-    # Calculate approximate text size
     total_text = ""
     for p in products:
         total_text += f"{p['name_bn']} {p['category_bn']} {p['description_bn']} মূল্য: {p['price_bdt']} টাকা\n"

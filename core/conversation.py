@@ -21,8 +21,7 @@ class ConversationState:
     def add_turn(self, role: str, content: str) -> None:
         """Add a conversation turn."""
         self.history.append({"role": role, "content": content})
-        # Trim to max history
-        max_entries = MAX_HISTORY_TURNS * 2  # user + assistant per turn
+        max_entries = MAX_HISTORY_TURNS * 2
         if len(self.history) > max_entries:
             self.history = self.history[-max_entries:]
 
@@ -35,7 +34,6 @@ class ConversationState:
         if results:
             self.current_topic = results[0].get("name_bn", None)
 
-        # Also store the user's search terms as topic
         if user_query:
             import re
             clean_words = re.findall(r'[\u0980-\u09FF]+', user_query)
@@ -90,27 +88,19 @@ def enrich_query(query: str, state: ConversationState) -> tuple[str, bool]:
 
     Returns: (enriched_query, was_enriched)
     """
-    # No history = first query, no enrichment needed
     if not state.history or not state.current_topic:
         return query, False
 
     query_stripped = query.strip()
-    # Strip punctuation from words for matching
     import re
-    clean_words = re.findall(r'[\u0980-\u09FF]+', query_stripped)  # Extract only Bangla chars
+    clean_words = re.findall(r'[\u0980-\u09FF]+', query_stripped)
     query_words = set(clean_words)
 
-    # Remove stop/common words to find content words
     content_words = {w for w in query_words if w not in STOP_AND_COMMON_WORDS and len(w) > 1}
 
-    # If query has content words → user is asking about a NEW topic
-    # e.g., "আপনাদের কোম্পানি কি দই বিক্রি করে?" → content_words = {"দই"}
     if content_words:
         return query, False
 
-    # Query is purely referential (no content words)
-    # e.g., "দাম কত টাকা?" → content_words = {} → it's a follow-up
-    # Prefer user's query topic ("ইলেকট্রনিক্স পণ্য") over product name ("পাওয়ার ব্যাংক")
     topic = state.current_query_topic or _extract_base_name(state.current_topic or "")
     if topic:
         enriched = f"{topic} {query_stripped}"
@@ -123,7 +113,6 @@ def _has_overlap(query: str, product_name: str) -> bool:
     """Check if query contains significant words from product name."""
     product_words = set(product_name.split())
     query_words = set(query.split())
-    # Remove very short common words
     product_words = {w for w in product_words if len(w) > 2}
     overlap = product_words & query_words
     return len(overlap) >= 1
@@ -140,7 +129,6 @@ def _extract_base_name(full_name: str) -> str:
     name = re.sub(r'\(.*?\)', '', full_name).strip()
     name = re.sub(r'-\s*\S+$', '', name).strip()
 
-    # Keep last 2 meaningful words (product type), drop the first (brand)
     words = name.split()
     if len(words) >= 3:
         return " ".join(words[-2:])
