@@ -27,6 +27,5 @@ Thumbs.db
 htmlcov/
 
 # Generated Data & Index Files (Generated locally via script)
-data/*.json
 data/*.index
 data/*.npy
