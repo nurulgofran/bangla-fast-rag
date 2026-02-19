@@ -58,8 +58,12 @@ def template_response(query_type: str, results: list[dict]) -> str:
         )
 
     # Fallback for unclassified — still use template
-    p = results[0]
-    return f"{p['name_bn']} — মূল্য: ৳{p['price_bdt']}। {p['description_bn']}"
+    lines = []
+    # Show top 5 relevant options so the user isn't forced into just 1 random product
+    for p in results[:5]:
+        lines.append(f"• {p['name_bn']} (৳{p['price_bdt']})")
+    
+    return "আপনার খোঁজা প্রাসঙ্গিক কিছু পণ্য নিচে দেওয়া হলো:\n" + "\n".join(lines)
 
 
 # ─── LLM-Based Response (NOT in hot path) ───
