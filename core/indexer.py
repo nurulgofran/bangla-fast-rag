@@ -3,7 +3,6 @@ Hybrid product search — keyword matching + FAISS semantic search.
 Keyword matching is the primary strategy for Bangla (better accuracy).
 FAISS provides semantic fallback for complex queries.
 """
-import json
 import re
 import numpy as np
 import faiss
@@ -13,6 +12,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import FAISS_INDEX_FILE, EMBEDDINGS_FILE, PRODUCTS_FILE, TOP_K_RESULTS
 from core.embeddings import embedding_model
+from core.text_parser import parse_products
 
 
 class ProductIndex:
@@ -32,10 +32,9 @@ class ProductIndex:
         )
 
     def build_index(self) -> None:
-        """Build FAISS index from products.json. Run once offline."""
-        print("Loading products...")
-        with open(PRODUCTS_FILE, "r", encoding="utf-8") as f:
-            self.products = json.load(f)
+        """Build FAISS index from products.txt. Run once offline."""
+        print("Loading products from text file...")
+        self.products = parse_products(PRODUCTS_FILE)
 
         self.product_texts = [self.product_to_text(p) for p in self.products]
 
@@ -60,8 +59,7 @@ class ProductIndex:
         print("Loading FAISS index...")
         self.faiss_index = faiss.read_index(str(FAISS_INDEX_FILE))
 
-        with open(PRODUCTS_FILE, "r", encoding="utf-8") as f:
-            self.products = json.load(f)
+        self.products = parse_products(PRODUCTS_FILE)
 
         self.product_texts = [self.product_to_text(p) for p in self.products]
         print(f"FAISS index loaded: {self.faiss_index.ntotal} vectors")
