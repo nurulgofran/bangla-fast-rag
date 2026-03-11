@@ -8,9 +8,9 @@ from core.llm import groq_llm
 
 # ─── Template-Based Response (HOT PATH — <1ms) ───
 
-PRICE_QUERY_KEYWORDS = ["দাম", "কত", "মূল্য", "প্রাইস", "টাকা", "খরচ"]
-AVAILABILITY_KEYWORDS = ["আছে", "বিক্রি", "পাওয়া", "স্টক", "available"]
-DETAIL_KEYWORDS = ["বিস্তারিত", "বর্ণনা", "কি", "কী", "বলুন", "জানান"]
+PRICE_QUERY_KEYWORDS = ["দাম", "কত", "কতো", "মূল্য", "প্রাইস", "টাকা", "খরচ", "রেট"]
+AVAILABILITY_KEYWORDS = ["আছে", "বিক্রি", "পাওয়া", "পাবো", "পাব", "স্টক", "available", "হবে"]
+DETAIL_KEYWORDS = ["বিস্তারিত", "বর্ণনা", "কি", "কী", "বলুন", "বলবেন", "জানান", "details"]
 
 
 def classify_query(query: str) -> str:
