@@ -29,3 +29,14 @@ htmlcov/
 # Generated Data & Index Files (Generated locally via script)
 data/*.index
 data/*.npy
+
+# ===== SENSITIVE FILES - DO NOT COMMIT =====
+keystore.properties
+*.keystore
+*.jks
+google-services.json
+GoogleService-Info.plist
+.env.*
+!.env.example
+build/
+dazl.config.json
