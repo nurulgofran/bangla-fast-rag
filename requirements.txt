@@ -1,6 +1,9 @@
-sentence-transformers>=2.2.0
-faiss-cpu>=1.7.4
-groq>=0.4.0
+faiss-cpu>=1.7.0
 gradio>=4.0.0
-python-dotenv>=1.0.0
+groq>=0.9.0
 numpy>=1.24.0
+python-dotenv>=1.0.0
+sentence-transformers>=2.7.0
+onnxruntime>=1.15.0
+optimum>=1.19.0
+torch>=2.0.0
