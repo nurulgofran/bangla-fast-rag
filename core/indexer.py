@@ -33,13 +33,13 @@ class ProductIndex:
 
     def build_index(self) -> None:
         """Build FAISS index from products.json. Run once offline."""
-        print("🔄 Loading products...")
+        print("Loading products...")
         with open(PRODUCTS_FILE, "r", encoding="utf-8") as f:
             self.products = json.load(f)
 
         self.product_texts = [self.product_to_text(p) for p in self.products]
 
-        print(f"🔄 Encoding {len(self.products)} products...")
+        print(f"Encoding {len(self.products)} products...")
         embedding_model.load()
         embeddings = embedding_model.encode(self.product_texts)
 
@@ -50,21 +50,21 @@ class ProductIndex:
         faiss.write_index(self.faiss_index, str(FAISS_INDEX_FILE))
         np.save(str(EMBEDDINGS_FILE), embeddings)
 
-        print(f"✅ FAISS index built: {self.faiss_index.ntotal} vectors ({dimension}-dim)")
+        print(f"FAISS index built: {self.faiss_index.ntotal} vectors ({dimension}-dim)")
 
     def load_index(self) -> None:
         """Load pre-built FAISS index and products."""
         if self.faiss_index is not None:
             return
 
-        print("🔄 Loading FAISS index...")
+        print("Loading FAISS index...")
         self.faiss_index = faiss.read_index(str(FAISS_INDEX_FILE))
 
         with open(PRODUCTS_FILE, "r", encoding="utf-8") as f:
             self.products = json.load(f)
 
         self.product_texts = [self.product_to_text(p) for p in self.products]
-        print(f"✅ FAISS index loaded: {self.faiss_index.ntotal} vectors")
+        print(f"FAISS index loaded: {self.faiss_index.ntotal} vectors")
 
     def _keyword_search(self, query: str, top_k: int) -> list[dict]:
         """

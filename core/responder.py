@@ -51,10 +51,10 @@ def template_response(query_type: str, results: list[dict]) -> str:
     elif query_type == "detail":
         p = results[0]
         return (
-            f"📦 {p['name_bn']}\n"
-            f"📁 বিভাগ: {p['category_bn']}\n"
-            f"💰 মূল্য: ৳{p['price_bdt']}\n"
-            f"📝 {p['description_bn']}"
+            f"{p['name_bn']}\n"
+            f"বিভাগ: {p['category_bn']}\n"
+            f"মূল্য: ৳{p['price_bdt']}\n"
+            f"{p['description_bn']}"
         )
 
     # Fallback for unclassified — still use template

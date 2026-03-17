@@ -26,7 +26,7 @@ class QueryMetrics:
 
     def summary(self) -> str:
         return (
-            f"⏱️ Enrichment: {self.enrichment_ms:.2f}ms | "
+            f"Enrichment: {self.enrichment_ms:.2f}ms | "
             f"Embedding: {self.embedding_ms:.2f}ms | "
             f"Search: {self.search_ms:.2f}ms | "
             f"Response: {self.response_ms:.2f}ms | "
@@ -57,13 +57,13 @@ class RAGPipeline:
 
         # Warm up the embedding model (eliminates cold-start latency)
         # First query after load is ~180ms, subsequent are ~10ms
-        print("🔄 Warming up embedding model...")
+        print("Warming up embedding model...")
         for _ in range(5):
             embedding_model.encode_query("পরীক্ষা নুডুলস দাম কত টাকা")
-        print("✅ Model warmed up")
+        print("Model warmed up")
 
         self._initialized = True
-        print("✅ RAG Pipeline initialized")
+        print("RAG Pipeline initialized")
 
     def process_query(
         self,

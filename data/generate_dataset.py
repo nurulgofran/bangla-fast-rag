@@ -260,16 +260,16 @@ def save_dataset(products: list[dict], output_path: Path) -> None:
         total_text += f"{p['name_bn']} {p['category_bn']} {p['description_bn']} মূল্য: {p['price_bdt']} টাকা\n"
 
     size_bytes = len(total_text.encode("utf-8"))
-    print(f"✅ Generated {len(products)} products")
-    print(f"📁 Saved to: {output_path}")
-    print(f"📊 Text data size: {size_bytes / 1024 / 1024:.2f} MB")
-    print(f"📊 JSON file size: {output_path.stat().st_size / 1024 / 1024:.2f} MB")
+    print(f"Generated {len(products)} products")
+    print(f"Saved to: {output_path}")
+    print(f"Text data size: {size_bytes / 1024 / 1024:.2f} MB")
+    print(f"JSON file size: {output_path.stat().st_size / 1024 / 1024:.2f} MB")
 
 
 if __name__ == "__main__":
     sys.path.insert(0, str(Path(__file__).parent.parent))
     from config import PRODUCTS_FILE, NUM_PRODUCTS
 
-    print("🔄 Generating synthetic Bangla product dataset...")
+    print("Generating synthetic Bangla product dataset...")
     products = generate_products(NUM_PRODUCTS)
     save_dataset(products, PRODUCTS_FILE)

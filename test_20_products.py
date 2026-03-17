@@ -21,7 +21,7 @@ def run_tests():
     random.seed(42)
     test_products = random.sample(names, 20)
 
-    print('# 🧪 20-Product Benchmark Report\n')
+    print('# 20-Product Benchmark Report\n')
     print(f'Testing 20 random products for Q2 (follow-up) latency under 100ms.\n')
 
     rag_pipeline.initialize()
@@ -42,7 +42,7 @@ def run_tests():
         
         results_q2_ms.append(m2.total_ms)
         
-        status = '✅ PASS' if m2.total_ms < 100 else '❌ FAIL'
+        status = 'PASS' if m2.total_ms < 100 else 'FAIL'
         print(f'**Test {i:02d}: {prod}**')
         print(f'- Q1 Time: {m1.total_ms:.2f}ms')
         print(f'- Q2 Enriched Query: "{m2.enriched_query}"')
@@ -53,8 +53,8 @@ def run_tests():
     max_q2 = max(results_q2_ms)
     pass_count = sum(1 for t in results_q2_ms if t < 100)
 
-    print('## 📊 Summary')
-    print(f'- **Total Tests:** 20')
+    print('## Summary')
+    print(f'- Total Tests: 20')
     print(f'- **Pass Rate (<100ms):** {pass_count}/20 ({pass_count/20*100:.0f}%)')
     print(f'- **Average Q2 Latency:** {avg_q2:.2f}ms')
     print(f'- **Max Q2 Latency:** {max_q2:.2f}ms')
