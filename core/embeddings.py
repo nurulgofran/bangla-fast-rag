@@ -2,7 +2,17 @@
 Embedding model management — ONNX Runtime backend for fast, thread-safe inference.
 Uses paraphrase-multilingual-MiniLM-L12-v2 with ONNX optimization.
 """
+import json
 import numpy as np
+import torch
+import os
+
+# Optimize PyTorch CPU threading to prevent massive thread-contention
+# inside Python ThreadPools (Gradio background workers)
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+torch.set_num_threads(1)
+
 from sentence_transformers import SentenceTransformer
 
 import sys
