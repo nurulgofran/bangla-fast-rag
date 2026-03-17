@@ -18,7 +18,6 @@ def run_benchmark(iterations: int = 100) -> None:
     print("Speaklar Bangla RAG - Performance Benchmark")
     print("=" * 60)
 
-    # Initialize pipeline
     pipeline = RAGPipeline()
     pipeline.initialize()
 
@@ -29,7 +28,6 @@ def run_benchmark(iterations: int = 100) -> None:
     pipeline.process_query("দাম কত টাকা?", use_llm=False)
     pipeline.reset()
 
-    # Collect metrics
     q2_totals = []
     q2_enrichments = []
     q2_embeddings = []
@@ -42,13 +40,11 @@ def run_benchmark(iterations: int = 100) -> None:
     for i in range(iterations):
         pipeline.reset()
 
-        # Q1 — setup context
         pipeline.process_query(
             "আপনাদের কোম্পানি কি নুডুলস বিক্রি করে?",
             use_llm=False,
         )
 
-        # Q2 — THE MEASUREMENT
         response, results, metrics = pipeline.process_query(
             "দাম কত টাকা?",
             use_llm=False,
@@ -68,7 +64,6 @@ def run_benchmark(iterations: int = 100) -> None:
         if (i + 1) % 25 == 0:
             print(f"  [{i+1}/{iterations}] Latest Q2: {metrics.total_ms:.2f}ms")
 
-    # ─── Report ───
     def stats(values):
         return {
             "mean": statistics.mean(values),

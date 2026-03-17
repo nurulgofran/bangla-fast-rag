@@ -98,17 +98,13 @@ class ProductIndex:
 
             for word in expanded_words:
                 if len(word) > 2:
-                    # Exact substring match in name (highest priority)
                     if word in name:
                         score += 10
-                    # Substring match in full text
                     elif word in text:
                         score += 3
-                    # Check if product name contains this word
                     elif any(word in pword for pword in name.split()):
                         score += 8
 
-            # Category match
             for word in expanded_words:
                 if len(word) > 2 and word in product.get("category_bn", ""):
                     score += 5
@@ -156,7 +152,6 @@ class ProductIndex:
             if keyword_results:
                 return keyword_results
 
-        # Fallback to FAISS
         return self._faiss_search(query_embedding, top_k)
 
 
