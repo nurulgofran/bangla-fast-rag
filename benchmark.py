@@ -81,7 +81,7 @@ def run_benchmark(iterations: int = 100) -> None:
     resp = stats(q2_responses)
 
     print("\n" + "=" * 60)
-    print("📊 BENCHMARK RESULTS — Q2 Latency (ms)")
+    print("BENCHMARK RESULTS — Q2 Latency (ms)")
     print("=" * 60)
     print(f"\n{'Step':<20} {'Mean':>8} {'Median':>8} {'P95':>8} {'P99':>8} {'Min':>8} {'Max':>8}")
     print("-" * 80)
