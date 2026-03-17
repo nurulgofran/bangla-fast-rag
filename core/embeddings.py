@@ -22,28 +22,9 @@ class EmbeddingModel:
     def load(self) -> None:
         """Load the embedding model with ONNX backend. Call at startup."""
         if self.model is None:
-            print(f"Loading embedding model (ONNX): {self.model_name}...")
-            import platform
-            try:
-                # Use ARM64 quantized model on Apple Silicon for best speed
-                file_name = "onnx/model.onnx"
-                if platform.machine() == "arm64":
-                    file_name = "onnx/model_qint8_arm64.onnx"
-                    print(f"  → Using ARM64 INT8 quantized model")
-
-                self.model = SentenceTransformer(
-                    self.model_name,
-                    backend="onnx",
-                    model_kwargs={
-                        "provider": "CPUExecutionProvider",
-                        "file_name": file_name,
-                    },
-                )
-                print(f"Embedding model loaded (ONNX, {self.dimension}-dim)")
-            except Exception as e:
-                print(f"ONNX failed ({e}), falling back to PyTorch...")
-                self.model = SentenceTransformer(self.model_name)
-                print(f"Embedding model loaded (PyTorch fallback, {self.dimension}-dim)")
+            print(f"Loading embedding model (PyTorch): {self.model_name}...")
+            self.model = SentenceTransformer(self.model_name)
+            print(f"Embedding model loaded ({self.dimension}-dim)")
 
     def encode(self, texts: str | list[str], batch_size: int = 128) -> np.ndarray:
         """Encode text(s) into normalized embeddings."""
