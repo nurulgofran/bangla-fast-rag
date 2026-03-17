@@ -43,13 +43,11 @@ Create a `.env` file in the root directory:
 GROQ_API_KEY=your_groq_api_key_here
 ```
 
-### 3. Generate Dataset & Build Index
-The system dynamically generates a 5MB+ / 5,000 product synthetic Bangla dataset.
-```bash
-# Generate the data
-python data/generate_dataset.py
+### 3. Build the Vector Index
+The repository includes a highly-curated, static 5MB+ synthetic product dataset (`data/products.json`). I am providing the exact raw JSON file rather than requiring evaluators to run the generation script (`data/generate_dataset.py`) to guarantee strict **reproducibility** (i.e. to ensure FAISS results aren't altered by different random seeds or OS environments).
 
-# Build the FAISS vector index
+All you need to do is compile the `.index` and `.npy` embedding files locally:
+```bash
 python -c "from core.indexer import product_index; product_index.build_index()"
 ```
 
