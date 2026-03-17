@@ -1,5 +1,32 @@
+# Environments
 .env
+.venv/
+venv/
+env/
+
+# Python caching
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
+
+# Jupyter Notebook
 .ipynb_checkpoints
+
+# IDEs
+.vscode/
+.idea/
+
+# OS specific
 .DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Generated Data & Index Files (Generated locally via script)
+data/*.json
+data/*.index
+data/*.npy
