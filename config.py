@@ -10,7 +10,7 @@ load_dotenv()
 # Paths
 PROJECT_ROOT = Path(__file__).parent
 DATA_DIR = PROJECT_ROOT / "data"
-PRODUCTS_FILE = DATA_DIR / "products.json"
+PRODUCTS_FILE = DATA_DIR / "products.txt"
 FAISS_INDEX_FILE = DATA_DIR / "products.index"
 EMBEDDINGS_FILE = DATA_DIR / "products_embeddings.npy"
 

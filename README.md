@@ -43,7 +43,9 @@ GROQ_API_KEY=your_groq_api_key_here
 ```
 
 ### 3. Build the Vector Index
-The repository includes a highly-curated, static 5MB+ synthetic product dataset (`data/products.json`). I am providing the exact raw JSON file rather than requiring evaluators to run the generation script (`data/generate_dataset.py`) to guarantee strict **reproducibility** (i.e. to ensure FAISS results aren't altered by different random seeds or OS environments).
+The repository includes a highly-curated, static 5MB+ synthetic product dataset (`data/products.txt`) — an unstructured Bangla text file containing one product per paragraph. I am providing the exact text file rather than requiring evaluators to run the generation script (`data/generate_dataset.py`) to guarantee strict **reproducibility** (i.e. to ensure FAISS results aren't altered by different random seeds or OS environments).
+
+The system parses this unstructured text at index-build time using regex-based metadata extraction (`core/text_parser.py`), then builds the FAISS vector index.
 
 All you need to do is compile the `.index` and `.npy` embedding files locally:
 ```bash
@@ -60,7 +62,7 @@ python app.py
 
 ## Benchmark Results
 Run `python benchmark.py` to execute the assessment scenario 100 times.
-- **Average Q2 Total Latency:** `~16ms`
+- **Average Q2 Total Latency:** `~19ms`
 - **Pass Rate:** `100%` (Well under the 100ms requirement) 
 
 ## Project Structure
@@ -72,7 +74,8 @@ Run `python benchmark.py` to execute the assessment scenario 100 times.
 └── core/                    
     ├── pipeline.py          # RAG Orchestrator
     ├── indexer.py           # Hybrid Search implementation
-    ├── embeddings.py        # ONNX model wrapper
+    ├── embeddings.py        # PyTorch model wrapper
+    ├── text_parser.py       # Unstructured text parser
     ├── conversation.py      # Entity tracking & coreference
     ├── responder.py         # Template vs LLM logic
     └── llm.py               # Groq wrapper

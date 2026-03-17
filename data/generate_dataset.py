@@ -1,15 +1,15 @@
 """
 Synthetic Bangla Product Dataset Generator — 5,000 products across 15+ categories.
-Generates ~5MB of Bangla text data for the RAG system.
+Generates ~5MB of unstructured Bangla text data for the RAG system.
+Output: one product per paragraph, separated by blank lines.
 """
-import json
 import random
 import sys
 from pathlib import Path
 
 random.seed(42)
 
-# ─── Product Catalog: {category_bn: [(product_name_bn, price_min, price_max, description_template)]} ───
+# ─── Product Catalog ───
 
 CATALOG = {
     "খাদ্য ও পানীয়": [
@@ -138,7 +138,7 @@ CATALOG = {
     "খেলাধুলা": [
         ("ক্রিকেট ব্যাট", 500, 10000, "উইলো কাঠের {name}। পেশাদার খেলার জন্য।"),
         ("ফুটবল", 300, 3000, "অফিসিয়াল সাইজের {name}। মাঠে খেলার জন্য।"),
-        ("ব্যাডমিন্টন র‍্যাকেট", 300, 5000, "হালকা ওজনের {name}। দ্রুত খেলার জন্য।"),
+        ("ব্যাডমিন্টন র\u200dাকেট", 300, 5000, "হালকা ওজনের {name}। দ্রুত খেলার জন্য।"),
         ("যোগা ম্যাট", 300, 2000, "নন-স্লিপ {name}। ব্যায়ামের জন্য আদর্শ।"),
         ("ডাম্বেল", 200, 5000, "অ্যাডজাস্টেবল {name}। ঘরে ব্যায়ামের জন্য।"),
         ("সাইকেল", 5000, 50000, "গিয়ার {name}। ব্যায়াম ও যাতায়াতের জন্য।"),
@@ -165,7 +165,6 @@ CATALOG = {
     ],
 }
 
-# Brand variants for product diversity
 BRANDS = [
     "স্কয়ার", "প্রাণ", "আকিজ", "বসুন্ধরা", "ওয়ালটন", "সিম্ফনি",
     "গ্রামীণ", "ইস্পাহানি", "মেরিল", "ফ্রেশ", "আড়ং", "যমুনা",
@@ -207,7 +206,6 @@ def generate_products(num_products: int = 5000) -> list[dict]:
 
         description = desc_template.format(name=base_name)
 
-        # Add multiple extra sentences to reach ~5MB total text
         extra_sentences = [
             f" {brand} ব্র্যান্ডের গুণগত মানের পণ্য।",
             f" দ্রুত ডেলিভারি পাওয়া যায়, সারা বাংলাদেশে হোম ডেলিভারি সুবিধা।",
@@ -226,7 +224,6 @@ def generate_products(num_products: int = 5000) -> list[dict]:
             f" প্রতিটি পণ্য কঠোর মান নিয়ন্ত্রণ প্রক্রিয়ার মধ্য দিয়ে যায়।",
             f" বিশেষ উপলক্ষে উপহার হিসেবে দিতে পারেন, গিফট র্যাপিং সুবিধা আছে।",
         ]
-        # Each product gets 5-6 extra sentences to reach ~5MB total
         num_extra = random.randint(5, 6)
         selected = random.sample(extra_sentences, num_extra)
         description += "".join(selected)
@@ -245,27 +242,34 @@ def generate_products(num_products: int = 5000) -> list[dict]:
     return products[:num_products]
 
 
-def save_dataset(products: list[dict], output_path: Path) -> None:
-    """Save products to JSON file."""
+def product_to_paragraph(product: dict) -> str:
+    """Convert a product dict into a freeform Bangla text paragraph."""
+    return (
+        f"{product['name_bn']} — {product['category_bn']}। "
+        f"মূল্য: ৳{product['price_bdt']} টাকা। "
+        f"{product['description_bn']}"
+    )
+
+
+def save_as_text(products: list[dict], output_path: Path) -> None:
+    """Save products as an unstructured text file (one paragraph per product)."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(products, f, ensure_ascii=False, indent=2)
 
-    total_text = ""
-    for p in products:
-        total_text += f"{p['name_bn']} {p['category_bn']} {p['description_bn']} মূল্য: {p['price_bdt']} টাকা\n"
+    paragraphs = [product_to_paragraph(p) for p in products]
+    text_content = "\n\n".join(paragraphs) + "\n"
 
-    size_bytes = len(total_text.encode("utf-8"))
+    output_path.write_text(text_content, encoding="utf-8")
+
+    size_bytes = len(text_content.encode("utf-8"))
     print(f"Generated {len(products)} products")
     print(f"Saved to: {output_path}")
-    print(f"Text data size: {size_bytes / 1024 / 1024:.2f} MB")
-    print(f"JSON file size: {output_path.stat().st_size / 1024 / 1024:.2f} MB")
+    print(f"Text file size: {size_bytes / 1024 / 1024:.2f} MB")
 
 
 if __name__ == "__main__":
     sys.path.insert(0, str(Path(__file__).parent.parent))
     from config import PRODUCTS_FILE, NUM_PRODUCTS
 
-    print("Generating synthetic Bangla product dataset...")
+    print("Generating synthetic Bangla product dataset (text format)...")
     products = generate_products(NUM_PRODUCTS)
-    save_dataset(products, PRODUCTS_FILE)
+    save_as_text(products, PRODUCTS_FILE)
